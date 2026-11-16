@@ -1,0 +1,45 @@
+# main에 머지되면 EAS에서 iOS 운영 빌드를 만들고 TestFlight에 올린다(--auto-submit).
+#
+# 켜기 전에 한 번만:
+#   1. 로컬에서 첫 빌드를 대화형으로 끝낸다(인증서·프로비저닝·App Store Connect API 키가 EAS에 저장됨)
+#        npx eas-cli@latest build --platform ios --profile production --auto-submit
+#   2. expo.dev → Account settings → Access tokens에서 토큰을 만들어 저장소 시크릿 EXPO_TOKEN에 넣는다
+#   3. 저장소 변수(Settings → Variables) TESTFLIGHT_ENABLED=true
+# 그 전에는 이 워크플로가 건너뛴다.
+name: TestFlight
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - 'site/**'
+      - 'docs/**'
+      - 'scripts/**'
+      - '**/*.md'
+      - '.github/workflows/pages.yml'
+      - '.github/workflows/ci.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: testflight
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: ${{ vars.TESTFLIGHT_ENABLED == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+      # 빌드는 EAS 서버에서 돈다. 여기서는 요청만 하고 기다리지 않는다(결과는 expo.dev와 TestFlight에서 확인).
+      - run: eas build --platform ios --profile production --auto-submit --non-interactive --no-wait

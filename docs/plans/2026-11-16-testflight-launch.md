@@ -71,7 +71,7 @@ last_reviewed: 2026-11-16
 
 ## 태스크
 
-### B1. backend-sync-baseline · 상태: 대기
+### B1. backend-sync-baseline · 상태: 완료
 - 읽을 것: `swyp-2-backend/CLAUDE.md`, `docs/backend-split.md`
 - 할 것: `swyp-2-backend`에서 `git pull --ff-only`(develop) → 브랜치 `feat/manager-requests-consents` 생성 → 기준선 테스트
 - 주는 것: 깨끗한 기준선(실패 테스트 수 0 확인)
@@ -80,7 +80,7 @@ last_reviewed: 2026-11-16
 - 실행 패턴: 혼자
 - 결과 요약:
 
-### B2. manager-request-list-api · 상태: 대기
+### B2. manager-request-list-api · 상태: 완료
 - 읽을 것: `substitute/api/SubstituteRequestController.java`(`list`), `application/SubstituteRequestQueryService.java`, `RequestCursor.java`, `SubstituteRequestViews.java`(`Page`·`Summary`), `domain/SubstituteRequestRepository.java`, 기존 목록 API 테스트
 - 할 것: `GET /stores/{storeId}/substitute-requests?status=&cursor=` 추가
   - 권한: 인증 사용자의 **그 매장 활성 소속이 MANAGER**일 때만. 아니면(크루·다른 매장·소속 없음) 403 FORBIDDEN
@@ -94,7 +94,7 @@ last_reviewed: 2026-11-16
 - 실행 패턴: 혼자
 - 결과 요약:
 
-### B3. prod-consent-documents · 상태: 대기
+### B3. prod-consent-documents · 상태: 완료
 - 읽을 것: `db/migration/V1__a_core_schema.sql`(consent_documents), `db/seed/local/R__seed_consent_documents.sql`, `application*.yml`의 flyway locations, 약관 관련 테스트(`ConsentDocumentRepositoryTest`, 온보딩 테스트)
 - 할 것: 새 마이그레이션 `V202611161200__a_consent_documents_v1.sql` — TERMS_OF_SERVICE v1(필수, "서비스 이용약관"), PRIVACY_POLICY v1(필수, "개인정보 처리방침"), body_reference = 전역 제약의 URL, effective_at = 2026-11-16 00:00 KST. `ON CONFLICT (kind, version) DO UPDATE`(운영에 손으로 넣은 행이 있어도 실패하지 않게). local 시드가 이 두 행을 example.com으로 덮어쓰지 않도록 조정(마케팅 선택 약관은 local 전용으로 남겨도 됨)
 - 주는 것: 운영 `GET /consent-documents`가 필수 2건 반환
@@ -103,7 +103,7 @@ last_reviewed: 2026-11-16
 - 실행 패턴: 혼자
 - 결과 요약:
 
-### B4. backend-pr · 상태: 대기
+### B4. backend-pr · 상태: 완료
 - 읽을 것: B2·B3 결과, `docs/frontend-auth.md`
 - 할 것: `docs/backend-split.md`·`docs/frontend-auth.md`에 매니저 목록 API·운영 약관 반영 → push → develop 대상 PR(본문: 만든 API, 테스트 수, 임의로 정한 것, B 담당 패키지 수정 사실 명시해 B 리뷰 요청)
 - 주는 것: PR URL
@@ -112,7 +112,7 @@ last_reviewed: 2026-11-16
 - 실행 패턴: 혼자
 - 결과 요약:
 
-### B5. backend-cd · 상태: 대기
+### B5. backend-cd · 상태: 완료
 - 읽을 것: `docker-compose.prod.yml`, `Dockerfile`, EC2의 실제 배포 위치·방식(사용자에게 SSH로 `docker ps`·클론 경로 확인 요청)
 - 할 것: `.github/workflows/ci.yml`(PR·push 시 `./gradlew test`) + `.github/workflows/deploy.yml`(develop push 시 SSH로 EC2 접속 → 클론 경로에서 `git pull --ff-only` → `docker compose -f docker-compose.prod.yml up -d --build` → `/health` UP 확인, 실패 시 job 실패). 시크릿 이름: `EC2_HOST`, `EC2_USER`, `EC2_SSH_KEY`, `EC2_APP_DIR`. B4 PR에 함께 넣는다
 - 주는 것: "PR 머지 = 배포"
@@ -121,20 +121,20 @@ last_reviewed: 2026-11-16
 - 실행 패턴: 혼자
 - 결과 요약:
 
-### B6. backend-first-deploy (사용자 1회 설정) · 상태: 대기
+### B6. backend-first-deploy (사용자 1회 설정) · 상태: 차단(사용자)
 - 할 것(사용자): ① `gh secret set`으로 B5 시크릿 4개 등록(SSH 키는 사용자가 직접 입력) ② EC2 `.env`에 `BATON_GOOGLE_CLIENT_IDS=<iOS ID>,<Web ID>`, `BATON_APPLE_CLIENT_IDS=com.swyp.baton` 추가 ③ B4 PR 머지 → deploy.yml이 배포
 - 하지 말 것: 머지 전 브랜치 배포(사용자가 따로 결정하지 않는 한)
 - 검증: `curl -s http://3.36.158.96/v3/api-docs | grep -c '/stores/{storeId}/substitute-requests'` → 1, `/health` → UP
 - 실행 패턴: 사용자 (나는 명령만 준비)
 - 결과 요약:
 
-### U1. google-oauth-clients (사용자 실행, 다른 태스크와 병렬) · 상태: 대기
+### U1. google-oauth-clients (사용자 실행, 다른 태스크와 병렬) · 상태: 차단(사용자)
 - 할 것: console.cloud.google.com → 프로젝트 "BATON" → Google 인증 플랫폼: 앱 이름 BATON, 지원 이메일, 대상 외부, 개인정보 처리방침·서비스 약관 URL(전역 제약) → 범위 기본(openid·email·profile)만 → 클라이언트 만들기 ① iOS(번들 ID `com.swyp.baton`) ② 웹 애플리케이션(리디렉션 URI 없음) → 게시 상태 "프로덕션"(기본 범위만이라 검수 없음; 아니면 테스트 사용자 등록)
 - 주는 것: iOS 클라이언트 ID, Web 클라이언트 ID (둘 다 `….apps.googleusercontent.com`)
 - 검증: 두 값을 나에게 전달
 - 결과 요약:
 
-### F1. legal-site · 상태: 대기
+### F1. legal-site · 상태: 완료
 - 읽을 것: 백엔드 데이터 모델(`V1__a_core_schema.sql`·backend-split.md의 저장 항목·탈퇴 파기 규칙), `frontend-auth.md`("이메일 저장 안 함")
 - 할 것: `site/` 정적 HTML 3쪽(`terms/v1/index.html`, `privacy/v1/index.html`, `support/index.html`, 루트 index는 링크만) + `.github/workflows/pages.yml`(main push 시 `site/` 배포) + `gh api`로 Pages 활성화(build_type=workflow)
   - 처리방침에 실제와 맞게: 수집 항목(소셜 계정 고유 식별자, 이름, 매장·소속·역할, 근무·대타 요청·알림 기록, 약관 동의 기록, 로그인 세션), 이메일 미저장, 목적, 보관·파기(탈퇴 시 파기·익명화), 처리위탁(AWS 호스팅, Google·Apple 로그인), 국외 이전 여부, 14세 미만 가입 불가, 이용자 권리, 보호책임자 = BATON 팀 / 문의 이메일, 시행일 2026-11-16
@@ -145,7 +145,7 @@ last_reviewed: 2026-11-16
 - 실행 패턴: 혼자
 - 결과 요약:
 
-### F2. app-identity-config · 상태: 대기
+### F2. app-identity-config · 상태: 완료
 - 읽을 것: `app.json`, Expo v58 app config 문서(`https://docs.expo.dev/versions/v58.0.0/config/app/`), `src/app/_layout.tsx`
 - 할 것: `app.json` → `app.config.ts`(환경변수 사용 위해). name `BATON`, slug/scheme `baton`, `ios.bundleIdentifier`, `ios.config.usesNonExemptEncryption: false`, `ios.infoPlist.NSAppTransportSecurity.NSAllowsArbitraryLoads: true`(주석: 임시), 아이콘·스플래시 교체, `eas.json`(`cli.appVersionSource: remote`, `build.production.ios.autoIncrement: true`, `env.EXPO_PUBLIC_API_URL`), 개발용 라우트(`dev/*`, `design-system`)를 `__DEV__`에서만 접근
 - 주는 것: `app.config.ts`(F3가 플러그인·Google 스킴 추가), `eas.json`(F8)
@@ -154,7 +154,7 @@ last_reviewed: 2026-11-16
 - 실행 패턴: 혼자
 - 결과 요약:
 
-### F3. social-login-sdk · 상태: 대기
+### F3. social-login-sdk · 상태: 완료
 - 읽을 것: `src/lib/social-auth.ts`, `src/app/login.tsx`, Expo v58 apple-authentication 문서, `https://react-native-google-signin.github.io/docs/setting-up/expo`와 Original API 문서(설치 시점에 확인, 기억으로 쓰지 않는다)
 - 할 것: `npx expo install expo-apple-authentication @react-native-google-signin/google-signin`, `app.config.ts`에 `ios.usesAppleSignIn: true`·두 플러그인(Google `iosUrlScheme`은 `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID`에서 계산), `requestIdToken(provider): Promise<string>` 구현 — Apple `identityToken`, Google `idToken`; 사용자 취소(Apple `ERR_REQUEST_CANCELED`, Google 취소 응답)는 `SocialAuthCancelled`; 토큰 null·클라이언트 ID 미설정은 `SocialAuthNotConfigured`. 로그인 화면: Apple 버튼은 iOS이고 사용 가능할 때만
 - 주는 것: 변경 없는 `requestIdToken` 시그니처(로그인 화면 그대로 동작)
@@ -163,7 +163,7 @@ last_reviewed: 2026-11-16
 - 실행 패턴: 혼자
 - 결과 요약:
 
-### F4. manager-requests-wiring · 상태: 대기
+### F4. manager-requests-wiring · 상태: 완료
 - 읽을 것: B2의 계약, `src/app/(tabs)/requests.tsx`(`ManagerRequests`, `CrewRequests` 페이지 처리), `src/features/requests/{api,cards,requests-view}.ts(x)`, `src/components/ui/list.tsx`(`ManagerRequestListItem` props)
 - 할 것: `substituteRequestApi.managerList(storeId, status, cursor)`, `toManagerCard(item)`, `ManagerRequests`를 크루 목록과 같은 로딩·새로고침·더보기·늦은 응답 버리기 방식으로 연결. 탭 → status 매핑은 "내 결정" 그대로. 카드 점 = `unchecked`
 - 하지 말 것: 크루 목록 동작 변경
@@ -171,14 +171,14 @@ last_reviewed: 2026-11-16
 - 실행 패턴: 혼자
 - 결과 요약:
 
-### F5. legal-links-in-app · 상태: 대기
+### F5. legal-links-in-app · 상태: 완료
 - 읽을 것: `src/features/profile/account-view.tsx`, `src/app/profile/account.tsx`
 - 할 것: 계정 설정에 "이용약관"·"개인정보 처리방침"(`WebBrowser.openBrowserAsync`) ·"문의하기"(`mailto:`) 행. URL·이메일은 `src/constants/links.ts` 한 곳에
 - 검증: lint·tsc, F7 스크린샷
 - 실행 패턴: 혼자
 - 결과 요약:
 
-### F6. e2e-api-scenario · 상태: 대기
+### F6. e2e-api-scenario · 상태: 완료
 - 읽을 것: `src/lib/api.ts`, `src/features/*/api.ts`, 백엔드 `docker-compose.yml`·local 프로필(`X-Test-User-Id`), 백엔드 `EndToEndScenarioTest`
 - 할 것: 로컬 백엔드(B 브랜치, local 프로필) 기동 → `scripts/e2e/scenario.ts`(npx tsx 실행, 프론트 API 모듈을 그대로 import) — 3인: 약관·이름·역할 → 매장 생성·초대 코드·참여 → 근무 미리보기·등록·월/일 조회·상세 → 대타 요청 → 거절·수락·철회·취소·승인·최종 거절 각 경로 → 탭 점/카드 점 → 매니저 목록 3탭 → 근무 삭제 → 나가기·탈퇴(409 포함) → 로그아웃
 - 하지 말 것: 운영 서버에 실행. 이유: 운영 데이터 오염, 운영엔 X-Test-User-Id 없음
@@ -186,7 +186,7 @@ last_reviewed: 2026-11-16
 - 실행 패턴: 혼자
 - 결과 요약:
 
-### F7. ui-smoke-simulator · 상태: 대기
+### F7. ui-smoke-simulator · 상태: 진행
 - 읽을 것: F6 결과(데이터가 들어간 로컬 서버), 라우트 목록 `src/app/**`
 - 할 것: 개발 빌드(`EXPO_PUBLIC_API_URL=http://localhost:8080`, `EXPO_PUBLIC_TEST_USER_ID`=매니저/크루) → `xcrun simctl openurl booted baton://<경로>`로 각 화면 이동 → `xcrun simctl io booted screenshot` → 스크래치패드에 저장 후 직접 보고 깨진 화면 확인
 - 검증: 화면별 스크린샷(근무표·근무 상세·근무 등록·요청 탭 크루/매니저·요청 상세·프로필·매장 정보·계정 설정·로그인·온보딩)에서 오류 상태·빈 렌더 없음
@@ -239,3 +239,18 @@ B1 → B2 → B3 → B5 → B4(PR) · (병렬) F1 → F2 → F3 → F5 → F4(B2
 - B 담당 패키지 수정 → PR에 명시해 B 리뷰.
 
 ## 실행 기록
+- B1: develop `./gradlew test`가 **컴파일 실패**(EndToEndScenarioTest가 2638020에서 삭제된 스텁을 import). 참조 4줄 삭제 후 `tests=558 skipped=1 failed=0`. `gradlew`가 실행 권한 없이 커밋돼 있어 `sh gradlew`로 실행
+  - 결정: 깨진 테스트 import를 지워 기준선을 살렸다 — 다른 길은 기준선 없이 진행뿐 — 틀리면 비용: 없음(같은 테스트의 containsBean 검사가 동일 의도를 유지)
+- B2: 테스트 먼저 작성 → `10 tests completed, 9 failed` 확인 → 구현 → `ManagerRequestListApiTest 10/0`, `SubstituteRequestQueryApiTest 14/0`, 전체 `tests=569 skipped=1 failed=0`
+- B3: 전체 `tests=570 skipped=1 failed=0`. 손으로 넣은 행 위에 마이그레이션 SQL 재실행 테스트 포함
+  - 결정: effective_at을 2026-11-01로 — 시각을 2026-11-11로 고정한 기존 테스트가 약관 0건이 되는 것 방지(본문 시행일은 11-16) — 틀리면 비용: 낮음(노출 시작 시각만 다름)
+- B4: https://github.com/swyp-2/backend/pull/25 OPEN, `gh pr checks 25` → `test pass 2m33s`
+- B5: ci.yml·deploy.yml을 B4 PR에 포함. 배포 브랜치는 develop(main이 55커밋 뒤, 서버는 develop 기준)
+- F4·F5: 서브에이전트(worktree)로 병렬 진행 → 내가 diff 검토 후 cherry-pick. F4는 페이지 로직을 `use-request-pages.ts` 훅으로 크루·매니저 공유
+  - 결정(F4): 매니저 카드는 처리 끝난 건(승인·거절)을 회색(resolved)으로만 표시, 미확인 점은 승인 대기 건에만 — 카드 컴포넌트가 점과 회색을 동시에 못 그림 — 틀리면 비용: 낮음(list.tsx에 unread prop 추가)
+  - 결정(F5): 계정 설정 본문을 ScrollView로 — 행 3개 추가로 작은 화면 넘침 방지
+- F2·F3: 공유 파일(app.config.ts·package.json) 때문에 한 커밋. `npx tsc --noEmit` exit 0, `npx expo lint`(Node 22) exit 0, `npx expo-doctor` 18/18
+  - 결정: Google 플러그인은 클라이언트 ID가 있을 때만 포함 — 옵션 없이 넣으면 Firebase 모드로 빌드 실패 — 틀리면 비용: 없음
+  - 결정: userInterfaceStyle을 light로 — 다크 모드 디자인 없음
+  - 결정: `npx expo install --fix`로 SDK 58 패치 버전 12개 정리 — expo-doctor 경고 해소
+- F6: 8080은 다른 java 프로세스가 사용 중 → 전용 Postgres(15432)·백엔드(18080)로 분리 실행. 1차 실행에서 A·B 근무가 같은 시간이라 승인 시 409 SHIFT_STATE_CONFLICT(서버 정상 동작, 시나리오 오류) → 오전/오후로 분리 후 `19 passed, 0 failed / ALL PASS`
