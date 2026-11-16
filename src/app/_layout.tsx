@@ -27,8 +27,13 @@ export default function RootLayout() {
         screenOptions={{
           headerShown: false,
           contentStyle: { backgroundColor: Colors.gray100 },
-        }}
-      />
+        }}>
+        {/* 시안 확인용 화면은 운영 빌드에서 열 수 없다 */}
+        <Stack.Protected guard={__DEV__}>
+          <Stack.Screen name="dev" />
+          <Stack.Screen name="design-system" />
+        </Stack.Protected>
+      </Stack>
     </SessionProvider>
   );
 }

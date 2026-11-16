@@ -1,13 +1,23 @@
+import * as Linking from 'expo-linking';
 import { Redirect, router } from 'expo-router';
+import * as WebBrowser from 'expo-web-browser';
 import { useRef, useState } from 'react';
 
+import { Links } from '@/constants/links';
 import { AccountView } from '@/features/profile/account-view';
 import { roleLabel } from '@/features/profile/display';
 import { ApiError } from '@/lib/api';
 import { confirmDestructive, notify } from '@/lib/confirm';
 import { useSession } from '@/lib/session';
 
-/** 프로필 - 계정 설정: 내 정보, 매장 나가기, 로그아웃, 탈퇴 */
+/** 링크를 열지 못해도 화면은 그대로 둔다 */
+const openInBrowser = (url: string) => WebBrowser.openBrowserAsync(url).catch(() => undefined);
+
+/** 메일 앱이 없으면(시뮬레이터 등) openURL 이 거절되어 고객 지원 페이지를 대신 연다 */
+const contact = () =>
+  Linking.openURL(`mailto:${Links.contactEmail}`).catch(() => openInBrowser(Links.support));
+
+/** 프로필 - 계정 설정: 내 정보, 약관·문의 링크, 매장 나가기, 로그아웃, 탈퇴 */
 export default function AccountScreen() {
   const { me, signOut, leaveStore, withdraw } = useSession();
   const [busy, setBusy] = useState(false);
@@ -67,6 +77,9 @@ export default function AccountScreen() {
       onLeaveStore={onLeaveStore}
       onLogout={logout}
       onWithdraw={onWithdraw}
+      onOpenTerms={() => openInBrowser(Links.terms)}
+      onOpenPrivacy={() => openInBrowser(Links.privacy)}
+      onContact={contact}
       busy={busy}
     />
   );

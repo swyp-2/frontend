@@ -84,3 +84,20 @@ export function toCrewCard(
     ...badge(item, box),
   };
 }
+
+/**
+ * 카드 제목이 "{name}님의 대타 승인 요청" 이라 name 에는 요청자를 넣는다.
+ * 카드 모양은 new 점(unread)과 회색 배경(resolved) 중 하나만 고를 수 있어,
+ * 처리가 끝난 승인·거절 건은 unchecked 여도 점 없이 회색으로 둔다.
+ */
+export function toManagerCard(item: SubstituteRequestSummary): ManagerRequestCard {
+  return {
+    id: item.id,
+    name: item.requester.display_name,
+    date: formatShiftDate(item.shift.starts_at),
+    time: formatShiftTime(item.shift.starts_at, item.shift.ends_at),
+    requester: item.requester.display_name,
+    substitute: item.candidate?.display_name ?? '',
+    status: item.status !== 'PENDING_MANAGER' ? 'resolved' : item.unchecked ? 'unread' : 'read',
+  };
+}

@@ -1,6 +1,6 @@
 import { Redirect } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/ui/app-text';
@@ -9,13 +9,30 @@ import { Logo } from '@/components/ui/logo';
 import { Colors } from '@/constants/theme';
 import { ApiError, type SocialProvider } from '@/lib/api';
 import { useSession } from '@/lib/session';
-import { requestIdToken, SocialAuthCancelled } from '@/lib/social-auth';
+import {
+  isAppleSignInAvailable,
+  isGoogleSignInConfigured,
+  requestIdToken,
+  SocialAuthCancelled,
+} from '@/lib/social-auth';
 
 /** CO-01 로그인 */
 export default function LoginScreen() {
   const session = useSession();
   const [pending, setPending] = useState<SocialProvider | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  // Apple 버튼은 지원 기기(iOS)에서만 보인다. 확인 전에는 숨겨 두었다가 나타나게 한다.
+  const [appleAvailable, setAppleAvailable] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    void isAppleSignInAvailable().then((available) => {
+      if (active) setAppleAvailable(available);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   if (session.status === 'signedIn') return <Redirect href="/" />;
 
@@ -55,12 +72,16 @@ export default function LoginScreen() {
             {message}
           </AppText>
         )}
-        <SocialLoginButton
-          provider="google"
-          disabled={!!pending}
-          onPress={() => login('google')}
-        />
-        <SocialLoginButton provider="apple" disabled={!!pending} onPress={() => login('apple')} />
+        {isGoogleSignInConfigured && (
+          <SocialLoginButton
+            provider="google"
+            disabled={!!pending}
+            onPress={() => login('google')}
+          />
+        )}
+        {appleAvailable && (
+          <SocialLoginButton provider="apple" disabled={!!pending} onPress={() => login('apple')} />
+        )}
       </View>
     </View>
   );
