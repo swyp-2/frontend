@@ -3,6 +3,11 @@ import type { ExpoConfig } from 'expo/config';
 const config: ExpoConfig = {
   name: 'BATON',
   slug: 'baton',
+  // EAS(빌드·제출) 프로젝트. expo.dev/accounts/monkeygarden/projects/baton
+  owner: 'monkeygarden',
+  extra: {
+    eas: { projectId: 'df8ee671-768e-450e-be66-985fc16c2210' },
+  },
   version: '1.0.0',
   orientation: 'portrait',
   icon: './assets/images/icon.png',
