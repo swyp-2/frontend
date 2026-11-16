@@ -186,7 +186,7 @@ last_reviewed: 2026-11-16
 - 실행 패턴: 혼자
 - 결과 요약:
 
-### F7. ui-smoke-simulator · 상태: 진행
+### F7. ui-smoke-simulator · 상태: 미달(부분 확인)
 - 읽을 것: F6 결과(데이터가 들어간 로컬 서버), 라우트 목록 `src/app/**`
 - 할 것: 개발 빌드(`EXPO_PUBLIC_API_URL=http://localhost:8080`, `EXPO_PUBLIC_TEST_USER_ID`=매니저/크루) → `xcrun simctl openurl booted baton://<경로>`로 각 화면 이동 → `xcrun simctl io booted screenshot` → 스크래치패드에 저장 후 직접 보고 깨진 화면 확인
 - 검증: 화면별 스크린샷(근무표·근무 상세·근무 등록·요청 탭 크루/매니저·요청 상세·프로필·매장 정보·계정 설정·로그인·온보딩)에서 오류 상태·빈 렌더 없음
@@ -201,7 +201,7 @@ last_reviewed: 2026-11-16
 - 실행 패턴: 사용자 + 나
 - 결과 요약:
 
-### F9. app-cd · 상태: 대기
+### F9. app-cd · 상태: 완료(활성화는 사용자)
 - 읽을 것: F8 결과(EAS에 인증서·ASC API 키 저장됨), `eas.json`
 - 할 것: `.github/workflows/ci.yml`(PR 시 `npx expo lint`·`npx tsc --noEmit`) + `.github/workflows/testflight.yml`(main push 시 `expo/expo-github-action`으로 `eas build --platform ios --profile production --auto-submit --non-interactive --no-wait`). 시크릿 `EXPO_TOKEN`(사용자가 expo.dev에서 발급해 `gh secret set`)
 - 주는 것: "main 머지 = TestFlight 새 빌드"
@@ -254,3 +254,8 @@ B1 → B2 → B3 → B5 → B4(PR) · (병렬) F1 → F2 → F3 → F5 → F4(B2
   - 결정: userInterfaceStyle을 light로 — 다크 모드 디자인 없음
   - 결정: `npx expo install --fix`로 SDK 58 패치 버전 12개 정리 — expo-doctor 경고 해소
 - F6: 8080은 다른 java 프로세스가 사용 중 → 전용 Postgres(15432)·백엔드(18080)로 분리 실행. 1차 실행에서 A·B 근무가 같은 시간이라 승인 시 409 SHIFT_STATE_CONFLICT(서버 정상 동작, 시나리오 오류) → 오전/오후로 분리 후 `19 passed, 0 failed / ALL PASS`
+- F7: `npx expo run:ios`가 로컬 Xcode 26.3(Swift 6.2.4)에서 **expo-modules-jsi 컴파일 오류**(`JavaScriptObject.swift:946 sending 'slot' risks causing data races`). 패키지는 Xcode 27 기준. node_modules 임시 패치(커밋 안 함, 원복함)로 시뮬레이터 빌드 성공 → 앱 실행, 근무표 화면이 로컬 서버 실데이터로 렌더링(매장명·빈 상태·요청 탭 점) 확인
+  - 화면별 스크린샷은 미달: `simctl openurl` 딥링크마다 iOS "열겠습니까?" 확인창이 뜨고, 탭 도구(idb 등)가 없고 키 입력 권한도 없음(osascript 1002). 개발용 이동 훅(임시)도 기기 번들에 반영되지 않아 중단. 화면별 데이터 흐름은 F6 19단계로 확인했고, 화면 확인은 TestFlight 체크리스트(docs/testflight-setup.md 6절)로 넘김
+  - 결정: eas.json `build.production.ios.image = latest` — EAS 기본 이미지가 Xcode 26이면 같은 컴파일 오류가 난다 — 틀리면 비용: 첫 EAS 빌드 실패 후 이미지 지정만 바꾸면 됨
+  - 결정: `expo run:ios`가 바꾼 package.json 스크립트(ios/android → expo run:*)를 유지 — 네이티브 모듈 추가로 Expo Go 불가, 개발 빌드가 기본
+- F9: ci.yml(tsc·lint), testflight.yml(main push → EAS build --auto-submit, `TESTFLIGHT_ENABLED` 변수 전까지 건너뜀)

@@ -8,6 +8,9 @@
       "autoIncrement": true,
       "env": {
         "EXPO_PUBLIC_API_URL": "http://3.36.158.96"
+      },
+      "ios": {
+        "image": "latest"
       }
     }
   },
