@@ -259,3 +259,10 @@ B1 → B2 → B3 → B5 → B4(PR) · (병렬) F1 → F2 → F3 → F5 → F4(B2
   - 결정: eas.json `build.production.ios.image = latest` — EAS 기본 이미지가 Xcode 26이면 같은 컴파일 오류가 난다 — 틀리면 비용: 첫 EAS 빌드 실패 후 이미지 지정만 바꾸면 됨
   - 결정: `expo run:ios`가 바꾼 package.json 스크립트(ios/android → expo run:*)를 유지 — 네이티브 모듈 추가로 Expo Go 불가, 개발 빌드가 기본
 - F9: ci.yml(tsc·lint), testflight.yml(main push → EAS build --auto-submit, `TESTFLIGHT_ENABLED` 변수 전까지 건너뜀)
+- 독립 리뷰(서브에이전트, 깨끗한 컨텍스트) 지적 처리
+  - [확인·수정] `npx tsc --noEmit` exit 2 — scripts/e2e/scenario.ts의 node: 모듈 타입(TS 6 기본 types=[]). F6 커밋 후 타입 검사를 다시 돌리지 않은 내 누락. tsconfig exclude에 scripts 추가 → tsc exit 0, lint exit 0
+  - [확인·수정] 비대화형 auto-submit에 ascAppId 필요 — 값은 첫 제출 후에 생기므로 testflight.yml 주석·설정 안내 5절에 단계 추가
+  - [확인·수정] deploy.yml이 서버에서 develop을 pull해 미검증 커밋을 배포할 수 있음 → github.sha checkout, 수동 실행도 develop만, 실패 시 운영 로그 대신 컨테이너 상태만 출력(공개 저장소)
+  - [보류] use-request-pages loadMore 경합: 기존 크루 코드에 있던 동작(회귀 아님), 다음 새로고침에 복구 — 틀리면 비용: 드물게 경계 근처 몇 건이 새로고침 전까지 안 보임
+  - [보류] Apple 시트 닫힘이 ERR_REQUEST_UNKNOWN으로 오면 실패 문구 표시 — 기기 Apple ID 미로그인 등 드문 경우
+  - [보류] 비소속자가 잘못된 status를 보내면 403 대신 422 — 기존 목록 API와 같은 순서, 정보 노출 없음

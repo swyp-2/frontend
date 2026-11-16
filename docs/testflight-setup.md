@@ -86,8 +86,10 @@ npx eas-cli@latest build --platform ios --profile production --auto-submit
 
 ## 5. main 머지 = TestFlight 자동 빌드 켜기
 
-1. https://expo.dev → Account settings → Access tokens → 토큰 생성 → `gh secret set EXPO_TOKEN -R swyp-2/frontend`
-2. frontend 저장소 Settings → Secrets and variables → Actions → Variables → `TESTFLIGHT_ENABLED` = `true`
+1. App Store Connect → 앱 → 앱 정보 → **Apple ID**(숫자)를 `eas.json`에 넣고 커밋한다(비대화형 자동 제출에 필수):
+   `"submit": { "production": { "ios": { "ascAppId": "<숫자>" } } }`
+2. https://expo.dev → Account settings → Access tokens → 토큰 생성 → `gh secret set EXPO_TOKEN -R swyp-2/frontend`
+3. frontend 저장소 Settings → Secrets and variables → Actions → Variables → `TESTFLIGHT_ENABLED` = `true`
 
 이후 `main`에 앱 코드가 머지될 때마다 빌드 번호가 자동으로 올라간 새 빌드가 TestFlight에 올라간다.
 
