@@ -53,6 +53,9 @@ export type SubstituteRequestPage = {
 
 export type RequestBox = 'sent' | 'received';
 
+/** 매니저 목록의 status 값. UI 의 ManagerRequestStatus(카드 모양)와 이름이 겹치지 않게 Filter 로 둔다 */
+export type ManagerRequestFilter = 'PENDING_MANAGER' | 'APPROVED' | 'REJECTED';
+
 /** 상세 응답 중 목록 카드에 필요한 부분만. 전체 타입은 상세 화면 쪽에서 정의한다 */
 export type SubstituteRequestRecipients = {
   id: number;
@@ -64,6 +67,14 @@ export const substituteRequestApi = {
   list: (box: RequestBox, cursor?: string | null) =>
     api<SubstituteRequestPage>(
       `/me/substitute-requests?box=${box}${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ''}`,
+    ),
+  /**
+   * 그 매장의 활성 매니저 전용(그 외 403). 정렬·페이지는 list 와 같다.
+   * my_response 는 항상 null, unchecked 는 조회한 매니저 본인의 알림 기준이다.
+   */
+  managerList: (storeId: number, status: ManagerRequestFilter, cursor?: string | null) =>
+    api<SubstituteRequestPage>(
+      `/stores/${storeId}/substitute-requests?status=${status}${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ''}`,
     ),
   /** 요청자에게는 지정 대상 전체가 recipients 로 온다 */
   recipients: (requestId: number) =>
