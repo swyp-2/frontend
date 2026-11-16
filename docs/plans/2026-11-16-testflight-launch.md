@@ -268,3 +268,4 @@ B1 → B2 → B3 → B5 → B4(PR) · (병렬) F1 → F2 → F3 → F5 → F4(B2
   - [보류] 비소속자가 잘못된 status를 보내면 403 대신 422 — 기존 목록 API와 같은 순서, 정보 노출 없음
 - 통합: 백엔드 https://github.com/swyp-2/backend/pull/25 (CI test pass), 프론트 https://github.com/swyp-2/frontend/pull/1 (CI check pass). 머지는 사용자
 - 남은 것(사용자): U1 Google OAuth 클라이언트 → B6 EC2 .env·시크릿 + 백엔드 PR 머지(=배포) → 프론트 PR 머지(=약관 페이지 공개) → F8 EAS 로그인·첫 빌드 → F9 활성화. 절차는 docs/testflight-setup.md
+- 결정(사용자, 2026-11-16 머지 후): **Google 로그인 제외, Apple만** — 빠른 출시. `@react-native-google-signin/google-signin` 제거, app.config의 Google 플러그인·로그인 화면 Google 버튼 제거, 약관·처리방침·지원 페이지 문구를 Apple만으로 수정, 설정 안내의 Google 단계 삭제. 백엔드는 변경 없음(Google 검증 코드는 남겨 둠, 서버 .env의 BATON_GOOGLE_CLIENT_IDS는 기존 값 유지). U1 태스크는 취소

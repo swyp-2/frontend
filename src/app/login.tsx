@@ -7,19 +7,18 @@ import { AppText } from '@/components/ui/app-text';
 import { SocialLoginButton } from '@/components/ui/button';
 import { Logo } from '@/components/ui/logo';
 import { Colors } from '@/constants/theme';
-import { ApiError, type SocialProvider } from '@/lib/api';
+import { ApiError } from '@/lib/api';
 import { useSession } from '@/lib/session';
 import {
   isAppleSignInAvailable,
-  isGoogleSignInConfigured,
-  requestIdToken,
+  requestAppleIdToken,
   SocialAuthCancelled,
 } from '@/lib/social-auth';
 
-/** CO-01 로그인 */
+/** CO-01 로그인. Apple 로그인만 제공한다 */
 export default function LoginScreen() {
   const session = useSession();
-  const [pending, setPending] = useState<SocialProvider | null>(null);
+  const [pending, setPending] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   // Apple 버튼은 지원 기기(iOS)에서만 보인다. 확인 전에는 숨겨 두었다가 나타나게 한다.
   const [appleAvailable, setAppleAvailable] = useState(false);
@@ -36,13 +35,13 @@ export default function LoginScreen() {
 
   if (session.status === 'signedIn') return <Redirect href="/" />;
 
-  const login = async (provider: SocialProvider) => {
+  const login = async () => {
     if (pending) return;
-    setPending(provider);
+    setPending(true);
     setMessage(null);
     try {
-      const idToken = await requestIdToken(provider);
-      await session.signIn(provider, idToken);
+      const idToken = await requestAppleIdToken();
+      await session.signIn('apple', idToken);
     } catch (error) {
       // 취소는 오류로 안내하지 않고 로그인 화면에 그대로 둔다.
       if (!(error instanceof SocialAuthCancelled)) {
@@ -55,7 +54,7 @@ export default function LoginScreen() {
         );
       }
     } finally {
-      setPending(null);
+      setPending(false);
     }
   };
 
@@ -72,16 +71,7 @@ export default function LoginScreen() {
             {message}
           </AppText>
         )}
-        {isGoogleSignInConfigured && (
-          <SocialLoginButton
-            provider="google"
-            disabled={!!pending}
-            onPress={() => login('google')}
-          />
-        )}
-        {appleAvailable && (
-          <SocialLoginButton provider="apple" disabled={!!pending} onPress={() => login('apple')} />
-        )}
+        {appleAvailable && <SocialLoginButton provider="apple" disabled={pending} onPress={login} />}
       </View>
     </View>
   );

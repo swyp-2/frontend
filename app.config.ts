@@ -1,16 +1,5 @@
 import type { ExpoConfig } from 'expo/config';
 
-/**
- * Google iOS OAuth 클라이언트 ID(…apps.googleusercontent.com). 백엔드 aud 허용 목록(BATON_GOOGLE_CLIENT_IDS)에도 같은 값이 있어야 한다.
- * 값이 없으면 Google 로그인 플러그인을 넣지 않는다(옵션 없이 넣으면 Firebase 설정 파일을 찾다 빌드가 실패한다).
- */
-const googleIosClientId = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID;
-
-/** Google 로그인 콜백 URL 스킴 = iOS 클라이언트 ID를 뒤집은 값 */
-const googleIosUrlScheme = googleIosClientId
-  ? `com.googleusercontent.apps.${googleIosClientId.replace(/\.apps\.googleusercontent\.com$/, '')}`
-  : undefined;
-
 const config: ExpoConfig = {
   name: 'BATON',
   slug: 'baton',
@@ -59,10 +48,8 @@ const config: ExpoConfig = {
       },
     ],
     'expo-secure-store',
+    // 로그인은 Apple만 쓴다(Google 로그인은 2026-11-16에 제외)
     'expo-apple-authentication',
-    ...(googleIosUrlScheme
-      ? [['@react-native-google-signin/google-signin', { iosUrlScheme: googleIosUrlScheme }] as [string, unknown]]
-      : []),
   ],
   experiments: {
     typedRoutes: true,
