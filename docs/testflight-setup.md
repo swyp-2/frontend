@@ -15,18 +15,11 @@
 ## 1. 약관 페이지 공개 (GitHub Pages)
 
 frontend 저장소 Settings → Pages → Source를 **GitHub Actions**로 둔다. `main`에 `site/`가 머지되면 `Pages` 워크플로가 배포한다.
-확인: 위 세 URL이 200으로 열린다. (Google 동의 화면·App Store Connect에 이 URL을 넣으므로 가장 먼저)
+확인: 위 세 URL이 200으로 열린다. (App Store Connect에 이 URL을 넣는다) — 2026-11-16 공개 완료
 
-## 2. Google OAuth 클라이언트 만들기
+## 2. (제외) Google 로그인
 
-1. https://console.cloud.google.com → 새 프로젝트 `BATON`
-2. **Google 인증 플랫폼 → 브랜딩**: 앱 이름 BATON, 사용자 지원 이메일, 홈페이지·개인정보 처리방침·서비스 약관 URL(위 표)
-3. **대상**: 외부(External). 범위는 기본값(openid·email·profile)만 — 민감 범위가 없어 검수가 필요 없다.
-   테스트 단계에서는 "테스트 사용자"에 테스터 Google 계정을 넣거나, 바로 "앱 게시"로 프로덕션 전환
-4. **클라이언트 → 클라이언트 만들기**
-   - 유형 **iOS**, 번들 ID `com.swyp.baton` → **iOS 클라이언트 ID** (`…apps.googleusercontent.com`)
-   - 유형 **웹 애플리케이션**, 리디렉션 URI 비움 → **웹 클라이언트 ID**
-5. 두 값을 아래 3·4단계에 쓴다(공개 식별자라 커밋해도 된다. 클라이언트 보안 비밀번호는 쓰지 않는다)
+2026-11-16 결정으로 로그인은 Apple만 쓴다. Google OAuth 클라이언트는 만들지 않는다.
 
 ## 3. 백엔드 배포 설정 (EC2, 한 번)
 
@@ -37,8 +30,7 @@ backend 저장소 PR #25(매니저 목록 API·운영 약관·CI/CD)가 머지�
 docker ps --format '{{.Names}}\t{{.Image}}'      # baton-api 가 보여야 함
 cd <클론 경로> && git remote -v && git branch      # develop 기준인지
 
-# .env 에 소셜 로그인 aud 허용값 추가 (기존 값은 그대로 두고 두 줄만)
-BATON_GOOGLE_CLIENT_IDS=<iOS 클라이언트 ID>,<웹 클라이언트 ID>
+# .env 에 Apple 로그인 aud 허용값 설정 (BATON_GOOGLE_CLIENT_IDS는 기존 값 그대로 둔다)
 BATON_APPLE_CLIENT_IDS=com.swyp.baton
 ```
 
@@ -65,13 +57,6 @@ npx eas-cli@latest login                 # Expo 계정
 npx eas-cli@latest init                  # EAS 프로젝트 생성. app.config.ts에 projectId를 넣으라고 안내하면 그대로 추가
 ```
 
-`eas.json`의 `build.production.env`에 Google 값을 넣는다:
-
-```json
-"EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID": "<iOS 클라이언트 ID>",
-"EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "<웹 클라이언트 ID>"
-```
-
 첫 빌드는 Apple 로그인 프롬프트가 있어 **직접 터미널에서**:
 
 ```bash
@@ -95,8 +80,8 @@ npx eas-cli@latest build --platform ios --profile production --auto-submit
 
 ## 6. 기기에서 확인할 것
 
-- [ ] Google 로그인 → 약관 화면에 "서비스 이용약관"·"개인정보 처리방침" 2건 → 가입 완료
-- [ ] Apple 로그인(다른 계정) → 가입 완료
+- [ ] Apple 로그인 → 약관 화면에 "서비스 이용약관"·"개인정보 처리방침" 2건 → 가입 완료
+- [ ] 다른 Apple 계정(다른 기기)으로 크루원 가입
 - [ ] 매니저: 매장 만들기 → 초대 코드 → 근무 등록 / 크루원: 코드 참여 → 대타 요청 → 매니저 요청 탭에서 승인
 - [ ] 계정 설정의 이용약관·개인정보 처리방침·문의하기가 열린다
 
