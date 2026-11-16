@@ -266,3 +266,5 @@ B1 → B2 → B3 → B5 → B4(PR) · (병렬) F1 → F2 → F3 → F5 → F4(B2
   - [보류] use-request-pages loadMore 경합: 기존 크루 코드에 있던 동작(회귀 아님), 다음 새로고침에 복구 — 틀리면 비용: 드물게 경계 근처 몇 건이 새로고침 전까지 안 보임
   - [보류] Apple 시트 닫힘이 ERR_REQUEST_UNKNOWN으로 오면 실패 문구 표시 — 기기 Apple ID 미로그인 등 드문 경우
   - [보류] 비소속자가 잘못된 status를 보내면 403 대신 422 — 기존 목록 API와 같은 순서, 정보 노출 없음
+- 통합: 백엔드 https://github.com/swyp-2/backend/pull/25 (CI test pass), 프론트 https://github.com/swyp-2/frontend/pull/1 (CI check pass). 머지는 사용자
+- 남은 것(사용자): U1 Google OAuth 클라이언트 → B6 EC2 .env·시크릿 + 백엔드 PR 머지(=배포) → 프론트 PR 머지(=약관 페이지 공개) → F8 EAS 로그인·첫 빌드 → F9 활성화. 절차는 docs/testflight-setup.md
