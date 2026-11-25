@@ -240,7 +240,7 @@ export const meApi = {
   setName: (displayName: string) =>
     api<Me>('/me/onboarding/name', { method: 'PUT', body: { display_name: displayName } }),
   setRole: (role: Role) => api<Me>('/me/onboarding/role', { method: 'PUT', body: { role } }),
-  /** 계정 탈퇴. 모든 기기의 세션이 끝난다. 끝나지 않은 본인 근무가 있으면 409 FUTURE_SHIFT_REMAINS */
+  /** 계정 탈퇴. 본인의 미종료 근무와 관련 요청을 종료하고 모든 기기의 세션을 끝낸다. */
   withdraw: () => api<void>('/me', { method: 'DELETE' }),
 };
 

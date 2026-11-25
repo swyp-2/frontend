@@ -35,7 +35,7 @@ export default function AccountScreen() {
       await task();
       router.replace('/');
     } catch (error) {
-      // 남은 근무가 있으면 409 FUTURE_SHIFT_REMAINS 이고 서버 문구를 그대로 보여 준다.
+      // 매장 나가기에 남은 근무가 있으면 서버의 409 안내를 보여 준다.
       notify(
         title,
         error instanceof ApiError ? error.message : '처리하지 못했어요. 다시 시도해 주세요.',
@@ -62,7 +62,7 @@ export default function AccountScreen() {
   const onWithdraw = async () => {
     const confirmed = await confirmDestructive({
       title: '정말 탈퇴할까요?',
-      message: '계정과 매장 소속이 삭제되고 되돌릴 수 없어요.',
+      message: '계정과 매장 소속이 삭제되고, 남은 내 근무와 관련 대타 요청도 정리돼요. 되돌릴 수 없어요.',
       confirmLabel: '탈퇴',
     });
     if (confirmed) await run('탈퇴하기', withdraw);
